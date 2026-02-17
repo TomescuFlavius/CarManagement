@@ -27,29 +27,6 @@ public class View {
         this.carQueryService=carQueryService;
         this.scanner = new Scanner(System.in);
 
-        this.play();
-    }
 
-    private void play() {
-        boolean running = true;
-        while (running) {
-
-            System.out.println("1. Adauga o masina");
-
-            System.out.println("0. Iesire");
-            System.out.print("Optiune: ");
-
-            try {
-                String input = scanner.nextLine();
-                switch (input) {
-                    case "1" -> this.carCommandService.delete("update");
-                    case "2" -> System.out.println(this.carQueryService.findAllCars());
-                    case "0" -> running = false;
-                    default -> System.out.println("Optiune invalida.");
-                }
-            } catch (Exception e) {
-                System.out.println("Eroare neasteptata: " + e.getMessage());
-            }
-        }
     }
 }
