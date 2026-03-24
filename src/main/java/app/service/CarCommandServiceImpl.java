@@ -1,5 +1,4 @@
 package app.service;
-
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import app.dtos.CarCreateRequest;
@@ -10,19 +9,14 @@ import app.exceptions.CarNotFoundException;
 import app.mappers.CarMapper;
 import app.model.Car;
 import app.repository.CarRepository;
-
 @Service
 public class CarCommandServiceImpl implements CarCommandService{
-
     private CarRepository carRepository;
     private CarMapper carMapper;
-
     public CarCommandServiceImpl(CarRepository carRepository,CarMapper carMapper){
         this.carRepository=carRepository;
         this.carMapper=carMapper;
     }
-
-
     @Override
     @Transactional
     public CarResponse create(CarCreateRequest request) {
@@ -32,7 +26,6 @@ public class CarCommandServiceImpl implements CarCommandService{
         Car savedCar=carRepository.save(carMapper.toEntity(request));
         return carMapper.toDto(savedCar);
     }
-
     @Override
     @Transactional
     public CarResponse update(long id, CarUpdateRequest request) {
@@ -43,7 +36,6 @@ public class CarCommandServiceImpl implements CarCommandService{
         Car updatedCar=carRepository.save(car);
         return carMapper.toDto(updatedCar);
     }
-
     @Override
     @Transactional
     public CarResponse delete(String model) {
