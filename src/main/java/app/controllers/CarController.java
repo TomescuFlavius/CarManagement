@@ -40,4 +40,9 @@ public class CarController {
         log.info("Http delete /api/v1/cars/delete/{}", model);
         return ResponseEntity.accepted().body( carCommandService.delete(model));
     }
+    @GetMapping("/get/{id}")
+    public ResponseEntity<CarResponse> getCarById(@PathVariable Long id){
+        log.info("Http get /api/v1/cars/get/{}", id);
+        return ResponseEntity.ok(carQueryService.findCarById(id));
+    }
 }

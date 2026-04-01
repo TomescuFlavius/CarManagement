@@ -13,4 +13,5 @@ public interface CarRepository extends JpaRepository<Car, Long> {
     boolean existsCarByBrandIgnoreCase(@Param("brand") String brand);
     boolean existsCarByModelIgnoreCase(@Param("model") String model);
     Optional<Car> findCarByModel(@Param("model") String model);
+    Optional<Car> findCarById(Long id);
 }
