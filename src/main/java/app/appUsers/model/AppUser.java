@@ -26,7 +26,7 @@ import java.util.Set;
 public class AppUser implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @ToString.Include
     private Long id;
 

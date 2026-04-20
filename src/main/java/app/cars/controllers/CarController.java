@@ -3,6 +3,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import app.cars.dtos.CarCreateRequest;
 import app.cars.dtos.CarResponse;
@@ -26,6 +27,7 @@ public class CarController {
         return ResponseEntity.ok(carQueryService.findAllCars());
     }
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('Car:Write')")
     public ResponseEntity<CarResponse> createCar(@Valid @RequestBody CarCreateRequest carCreateRequest){
         log.info("Http post /api/v1/cars/ brand={} model={} year={} price={} " ,carCreateRequest.brand(), carCreateRequest.model(), carCreateRequest.year(), carCreateRequest.price());
         return ResponseEntity.status(HttpStatus.CREATED).body(carCommandService.create(carCreateRequest));

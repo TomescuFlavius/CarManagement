@@ -13,8 +13,8 @@ public class UserDetailsImpl implements UserDetailsService {
         this.appUserRepository = appUserRepository;
     }
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return (UserDetails) appUserRepository.findByName(username)
-                .orElseThrow(()->new UsernameNotFoundException("User"+ username +"not found"));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return (UserDetails) appUserRepository.findByEmail(email)
+                .orElseThrow(()->new UsernameNotFoundException("User"+ email +"not found"));
     }
 }

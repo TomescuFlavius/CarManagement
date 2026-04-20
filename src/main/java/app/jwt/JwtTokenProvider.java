@@ -42,6 +42,7 @@ public class JwtTokenProvider {
                 .issuedAt(new Date())
                 .subject(user.getUsername())
                 .claim(AUTHORITIES, claims)
+                .claim("test","test")
                 .expiration(new Date(System.currentTimeMillis() + tokenExpirationAfterDays * 24 * 60 * 60 * 1000))
                 .signWith(getSigningKey(), Jwts.SIG.HS512)
                 .compact();
