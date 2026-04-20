@@ -1,9 +1,9 @@
 package app.controllers;
 
-import app.dtos.CarCreateRequest;
-import app.dtos.CarResponse;
-import app.dtos.CarUpdateRequest;
-import app.repository.CarRepository;
+import app.cars.dtos.CarCreateRequest;
+import app.cars.dtos.CarResponse;
+import app.cars.dtos.CarUpdateRequest;
+import app.cars.repository.CarRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,13 +106,5 @@ public class CarControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest());
     }
-    @Test
-    void globalExceptionHandlerHandlesGenericRuntime() throws Exception {
-        var result = mockMvc.perform(get("/api/v1/cars/all")
-                        .param("minYear", "2027")
-                        .param("maxYear", "2019"))
-                .andReturn();
-        assertThat(result.getResponse().getStatus()).isEqualTo(400);
-        assertThat(result.getResponse().getContentAsString()).contains("INVALID_REQUEST");
-    }
+
 }

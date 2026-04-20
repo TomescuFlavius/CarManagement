@@ -1,10 +1,10 @@
 package app.services;
-import app.dtos.CarResponseList;
-import app.mappers.CarMapper;
-import app.model.Car;
-import app.repository.CarRepository;
-import app.service.CarQueryService;
-import app.service.CarQueryServiceImpl;
+import app.cars.dtos.CarResponseList;
+import app.cars.mappers.CarMapper;
+import app.cars.model.Car;
+import app.cars.repository.CarRepository;
+import app.cars.service.CarQueryService;
+import app.cars.service.CarQueryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,9 +1,9 @@
 package app;
 import org.springframework.stereotype.Component;
-import app.mappers.CarMapper;
-import app.repository.CarRepository;
-import app.service.CarCommandService;
-import app.service.CarQueryService;
+import app.cars.mappers.CarMapper;
+import app.cars.repository.CarRepository;
+import app.cars.service.CarCommandService;
+import app.cars.service.CarQueryService;
 
 import java.util.Scanner;
 @Component
