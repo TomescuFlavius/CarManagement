@@ -33,16 +33,19 @@ public class CarController {
         return ResponseEntity.status(HttpStatus.CREATED).body(carCommandService.create(carCreateRequest));
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('Car:Write')")
     public ResponseEntity<CarResponse> updateCar(@PathVariable Long id,  @Valid @RequestBody CarUpdateRequest carUpdateRequest){
         log.info("Http put /api/v1/cars/{} brand={} model={} price={} ",id, carUpdateRequest.brand(), carUpdateRequest.model(),carUpdateRequest.price());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(carCommandService.update(id,carUpdateRequest));
     }
     @DeleteMapping("/delete/{model}")
+    @PreAuthorize("hasAuthority('Car:Write')")
     public ResponseEntity<CarResponse> deleteCar(@PathVariable String model){
         log.info("Http delete /api/v1/cars/delete/{}", model);
         return ResponseEntity.accepted().body( carCommandService.delete(model));
     }
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasAuthority('Car:Read')")
     public ResponseEntity<CarResponse> getCarById(@PathVariable Long id){
         log.info("Http get /api/v1/cars/get/{}", id);
         return ResponseEntity.ok(carQueryService.findCarById(id));

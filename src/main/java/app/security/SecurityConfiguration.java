@@ -33,13 +33,17 @@ public class SecurityConfiguration {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
     private final String secretKey;
+    private  JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private  JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     public SecurityConfiguration(UserDetailsService userDetailsService,
-                                 PasswordEncoder passwordEncoder,
+                                 PasswordEncoder passwordEncoder,JwtAccessDeniedHandler jwtAccessDeniedHandler,JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                                  @Value("${application.jwt.secretKey}") String secretKey) {
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.secretKey = secretKey;
+        this.jwtAccessDeniedHandler=jwtAccessDeniedHandler;
+        this.jwtAuthenticationEntryPoint=jwtAuthenticationEntryPoint;
 
     }
 
@@ -54,6 +58,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
+                .exceptionHandling(exc->exc.authenticationEntryPoint(jwtAuthenticationEntryPoint).accessDeniedHandler(jwtAccessDeniedHandler))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }

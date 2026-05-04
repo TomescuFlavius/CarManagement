@@ -2,6 +2,7 @@ package app.appUsers.service;
 
 import app.appUsers.dtos.UserCreateRequest;
 import app.appUsers.dtos.UserCreateResponse;
+
 import app.appUsers.model.AppUser;
 import app.appUsers.repository.AppUserRepository;
 import app.jwt.JwtTokenProvider;
@@ -9,7 +10,6 @@ import app.security.Permissions;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,25 +39,19 @@ public class UserCommandServiceImpl implements UserCommandService {
                 .email(userCreateRequest.email())
                 .name(userCreateRequest.name())
                 .password(passwordEncoder.encode(userCreateRequest.password()))
-                .permissionGroups(Set.of(Permissions.CAR_READ))
+                .permissionGroups(Set.of(Permissions.CAR_READ,   Permissions.USER_WRITE, Permissions.USER_READ,Permissions.WRITE_USER_PERMISSION,Permissions.READ_USER_PERMISSION))
                 .build();
-        appUserRepository.save(appUser);
-        String token= jwtTokenProvider.generateToken(appUser);
+      AppUser appUser1=  appUserRepository.save(appUser);
+        String token= jwtTokenProvider.generateToken(appUser1);
         return new UserCreateResponse(userCreateRequest.email(),token);
     }
 
     @Transactional
     @Override
     public UserCreateResponse login(UserCreateRequest userCreateRequest) {
-         authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(userCreateRequest.email(), userCreateRequest.password()));
+         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userCreateRequest.email(), userCreateRequest.password()));
          if (appUserRepository.findByEmail(userCreateRequest.email()).isEmpty()) throw new IllegalArgumentException("Email incorrect");
          AppUser appUser = appUserRepository.findByEmail(userCreateRequest.email()).get();
-         appUser.setEmail(userCreateRequest.email());
-         appUser.setName(appUser.getName());
-         appUser.setPermissionGroups(Set.of(Permissions.CAR_READ));
-         appUser.setPassword(passwordEncoder.encode(userCreateRequest.password()));
-         return new UserCreateResponse(userCreateRequest.email(),jwtTokenProvider.generateToken(appUser));
+         return new UserCreateResponse(appUser.getEmail(),jwtTokenProvider.generateToken(appUser));
     }
-
-
 }

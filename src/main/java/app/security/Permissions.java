@@ -7,7 +7,8 @@ public enum Permissions {
     CAR_WRITE("Car:Write"),
     USER_READ("User:Read"),
     USER_WRITE("User:Write"),
-    READ_USER_PERMISSION("UserPermission:Read");
+    READ_USER_PERMISSION("UserPermission:Read"),
+    WRITE_USER_PERMISSION("UserPermission:Write");
 
     private final String permission;
     public String getPermission(){
