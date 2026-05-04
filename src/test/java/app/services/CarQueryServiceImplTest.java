@@ -41,7 +41,7 @@ public class CarQueryServiceImplTest {
         Car car1 = new Car(1L, "Audi", "A4", 2020, 300.0);
         Car car2=new Car(2L, "Audi", "A4", 2020, 300.0);
         List<Car> goodCars=List.of(car1,car2);
-        when(carRepository.findCarByBrand(car1.getBrand())).thenReturn(goodCars);
+        when(carRepository.findCarByBrandIgnoreCase(car1.getBrand())).thenReturn(goodCars);
         CarResponseList responseList=carQueryService.findByBrand(car1.getBrand());
         assertEquals(carMapper.toDtoList(goodCars), responseList.carResponseList());
     }

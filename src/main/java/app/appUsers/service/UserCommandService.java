@@ -7,5 +7,5 @@ import app.auth.dtos.AuthResponse;
 
 public interface UserCommandService {
     UserCreateResponse register(UserCreateRequest userCreateRequest);
-    UserCreateResponse login(UserCreateRequest userCreateRequest);
+    AuthResponse login(AuthLoginRequest authLoginRequest);
 }

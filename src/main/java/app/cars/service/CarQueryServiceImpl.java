@@ -19,7 +19,7 @@ public class CarQueryServiceImpl implements CarQueryService{
     }
     @Override
     public CarResponseList findByBrand(String brand){
-        return new CarResponseList(carMapper.toDtoList(carRepository.findCarByBrand(brand)));
+        return new CarResponseList(carMapper.toDtoList(carRepository.findCarByBrandIgnoreCase(brand)));
     }
     @Override
     public CarResponse findCarById(Long id) {

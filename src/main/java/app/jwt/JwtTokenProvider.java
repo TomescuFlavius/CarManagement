@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static app.security.SecurityConstants.AUTHORITIES;
-import static io.jsonwebtoken.Claims.ISSUER;
+import static app.security.SecurityConstants.AUDIENCE;
+import static app.security.SecurityConstants.ISSUER;
 import static java.util.Arrays.stream;
-import static org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames.AUDIENCE;
 
 
 @Component
@@ -42,7 +42,6 @@ public class JwtTokenProvider {
                 .issuedAt(new Date())
                 .subject(user.getUsername())
                 .claim(AUTHORITIES, claims)
-                .claim("test","test")
                 .expiration(new Date(System.currentTimeMillis() + tokenExpirationAfterDays * 24 * 60 * 60 * 1000))
                 .signWith(getSigningKey(), Jwts.SIG.HS512)
                 .compact();

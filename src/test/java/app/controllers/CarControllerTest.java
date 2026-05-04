@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +40,7 @@ class CarControllerTest {
         CarResponse carResponse = new CarResponse(1L, "test", "test", 2022, 2000.0);
         when(carCommandService.create(carCreateRequest)).thenReturn(carResponse);
         mockMvc.perform(post("/api/v1/cars/add")
+                        .with(jwt().authorities(() -> "Car:Write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(carCreateRequest)))
                 .andExpect(status().isCreated())
@@ -62,7 +64,8 @@ class CarControllerTest {
         list.add(carResponse2);
         CarResponseList carResponseList=new CarResponseList(list);
         when(carQueryService.findAllCars()).thenReturn(carResponseList);
-        mockMvc.perform(get("/api/v1/cars/all"))
+        mockMvc.perform(get("/api/v1/cars/all")
+                        .with(jwt().authorities(() -> "Car:Read")))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect( jsonPath("$.carResponseList.length()").value(3))
@@ -75,7 +78,8 @@ class CarControllerTest {
         String model="model";
         CarResponse expectedCarResponse=new CarResponse(1L,"br","model",2020,2000.0);
         when(carCommandService.delete(model)).thenReturn(expectedCarResponse);
-        mockMvc.perform(delete("/api/v1/cars/delete/{model}",model))
+        mockMvc.perform(delete("/api/v1/cars/delete/{model}",model)
+                        .with(jwt().authorities(() -> "Car:Write")))
                 .andExpect(status().isAccepted())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
@@ -92,6 +96,7 @@ class CarControllerTest {
         CarResponse actualCar=new CarResponse(1L,"brand","model",2020,2000.0);
         when(carCommandService.update(id,carUpdateRequest)).thenReturn(actualCar);
         mockMvc.perform(put("/api/v1/cars/{id}",id)
+                        .with(jwt().authorities(() -> "Car:Write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(carUpdateRequest)))
                 .andExpect(status().isAccepted())
@@ -107,10 +112,11 @@ class CarControllerTest {
     void deleteCarReturnsConflictWhenServiceThrowsNotFound() throws Exception {
         doThrow(new CarNotFoundException()).when(carCommandService).delete("Ghost");
 
-        mockMvc.perform(delete("/api/v1/cars/delete/{model}", "Ghost"))
-                .andExpect(status().isConflict())
+        mockMvc.perform(delete("/api/v1/cars/delete/{model}", "Ghost")
+                        .with(jwt().authorities(() -> "Car:Write")))
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.status").value(409))
+                .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.message").value("Masina nu a fost gasita!"));
     }

@@ -50,7 +50,8 @@ public class AuthControllerIntegrationTest {
         AuthLoginRequest loginRequest=new AuthLoginRequest("email@gmail.com", "password");
 
         mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("email@gmail.com"))
                 .andExpect(jsonPath("$.token").isNotEmpty());
     }
 
@@ -63,7 +64,7 @@ public class AuthControllerIntegrationTest {
 
         mockMvc.perform(post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value(""));
+                .andExpect(jsonPath("$.message").value("User already exists"));
     }
 
 

@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,6 +40,7 @@ public class CarControllerIntegrationTest {
         CarCreateRequest carCreateRequest=new CarCreateRequest("Bmw", "Seria3", 2022, 2000.0);
 
         MvcResult createResult=mockMvc.perform(post("/api/v1/cars/add")
+                .with(jwt().authorities(() -> "Car:Write"))
                 .contentType((MediaType.APPLICATION_JSON))
                 .content(objectMapper.writeValueAsString(carCreateRequest)))
                 .andExpect(status().isCreated())
@@ -47,32 +49,38 @@ public class CarControllerIntegrationTest {
 
         CarResponse created=objectMapper.readValue(createResult.getResponse().getContentAsByteArray(),CarResponse.class);
 
-        mockMvc.perform(get("/api/v1/cars/get/{id}",created.id()))
+        mockMvc.perform(get("/api/v1/cars/get/{id}",created.id())
+                .with(jwt().authorities(() -> "Car:Read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.brand").value("Bmw"));
 
         CarUpdateRequest carUpdateRequest=new CarUpdateRequest("Nou","Nou",2000.0);
         mockMvc.perform(put("/api/v1/cars/{id}",created.id())
+                .with(jwt().authorities(() -> "Car:Write"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(carUpdateRequest)))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.brand").value("Nou"));
 
-        mockMvc.perform(delete("/api/v1/cars/delete/{model}",created.model()))
-                .andExpect(status().isConflict());
+        mockMvc.perform(delete("/api/v1/cars/delete/{model}","Nou")
+                .with(jwt().authorities(() -> "Car:Write")))
+                .andExpect(status().isAccepted());
 
-        mockMvc.perform(get("/api/v1/cars/get/{id}",created.id()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(created.id()));
+        mockMvc.perform(get("/api/v1/cars/get/{id}",created.id())
+                .with(jwt().authorities(() -> "Car:Read")))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Masina nu a fost gasita!"));
     }
     @Test
     void duplicateCreateReturnsConflict()throws Exception{
         CarCreateRequest carCreateRequest=new CarCreateRequest("Bmw", "Seria3", 2022, 2000.0);
         mockMvc.perform(post("/api/v1/cars/add")
+                .with(jwt().authorities(() -> "Car:Write"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(carCreateRequest)))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/v1/cars/add")
+                .with(jwt().authorities(() -> "Car:Write"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(carCreateRequest)))
                 .andExpect(status().isConflict())
@@ -83,17 +91,20 @@ public class CarControllerIntegrationTest {
         CarCreateRequest Bmw=new CarCreateRequest("Bmw", "Seria3", 2022, 2000.0);
         CarCreateRequest Audi=new CarCreateRequest("Audi", "A33", 2022, 2000.0);
         mockMvc.perform(post("/api/v1/cars/add")
+                        .with(jwt().authorities(() -> "Car:Write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Bmw)))
                 .andExpect(status().isCreated());
         mockMvc.perform(post("/api/v1/cars/add")
+                        .with(jwt().authorities(() -> "Car:Write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Audi)))
                 .andExpect(status().isCreated());
         mockMvc.perform(get("/api/v1/cars/all")
+                .with(jwt().authorities(() -> "Car:Read"))
                 .param("brand","BMW"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
+                .andExpect(jsonPath("$.carResponseList.length()").value(1));
     }
     @Test
     void validationErrorsAreReturned() throws Exception {
@@ -102,6 +113,7 @@ public class CarControllerIntegrationTest {
         );
 
         mockMvc.perform(post("/api/v1/cars/add")
+                        .with(jwt().authorities(() -> "Car:Write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest());

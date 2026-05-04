@@ -2,12 +2,13 @@ package app.auth.controller;
 import app.appUsers.dtos.UserCreateRequest;
 import app.appUsers.dtos.UserCreateResponse;
 import app.appUsers.service.UserCommandService;
+import app.auth.dtos.AuthLoginRequest;
+import app.auth.dtos.AuthResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,9 +31,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserCreateResponse> loginUser(@Valid @RequestBody UserCreateRequest userCreateRequest) {
+    public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody AuthLoginRequest userCreateRequest) {
         log.info("HTTP POST /api/v1/auth/login");
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(userCommandService.login(userCreateRequest));
+        return ResponseEntity.ok(userCommandService.login(userCreateRequest));
     }
 
 

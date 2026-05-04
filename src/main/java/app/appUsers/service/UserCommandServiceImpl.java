@@ -2,18 +2,20 @@ package app.appUsers.service;
 
 import app.appUsers.dtos.UserCreateRequest;
 import app.appUsers.dtos.UserCreateResponse;
-
 import app.appUsers.model.AppUser;
 import app.appUsers.repository.AppUserRepository;
+import app.auth.dtos.AuthLoginRequest;
+import app.auth.dtos.AuthResponse;
+import app.cars.exceptions.handler.ApiErrorResponse;
 import app.jwt.JwtTokenProvider;
 import app.security.Permissions;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Locale;
 import java.util.Set;
 
 @Service
@@ -34,7 +36,9 @@ public class UserCommandServiceImpl implements UserCommandService {
     @Transactional
     @Override
     public UserCreateResponse register(UserCreateRequest userCreateRequest) {
-        if (appUserRepository.findByEmail(userCreateRequest.email()).isPresent()) throw new IllegalArgumentException("User already exists");
+        if (appUserRepository.findByEmail(userCreateRequest.email()).isPresent()) {
+            throw new UserAlreadyExistsException();
+        }
         AppUser appUser = AppUser.builder()
                 .email(userCreateRequest.email())
                 .name(userCreateRequest.name())
@@ -48,10 +52,24 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Transactional
     @Override
-    public UserCreateResponse login(UserCreateRequest userCreateRequest) {
-         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userCreateRequest.email(), userCreateRequest.password()));
-         if (appUserRepository.findByEmail(userCreateRequest.email()).isEmpty()) throw new IllegalArgumentException("Email incorrect");
-         AppUser appUser = appUserRepository.findByEmail(userCreateRequest.email()).get();
-         return new UserCreateResponse(appUser.getEmail(),jwtTokenProvider.generateToken(appUser));
+    public AuthResponse login(AuthLoginRequest authLoginRequest) {
+         try {
+             authenticationManager.authenticate(
+                     new UsernamePasswordAuthenticationToken(authLoginRequest.email(), authLoginRequest.password())
+             );
+         } catch (AuthenticationException exception) {
+             throw new InvalidCredentialsException();
+         }
+
+         AppUser appUser = appUserRepository.findByEmail(authLoginRequest.email())
+                 .orElseThrow(InvalidCredentialsException::new);
+
+         return new AuthResponse(
+                 appUser.getId(),
+                 appUser.getName(),
+                 appUser.getEmail(),
+                 appUser.getPermissionGroups(),
+                 jwtTokenProvider.generateToken(appUser)
+         );
     }
 }

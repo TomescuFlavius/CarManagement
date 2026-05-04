@@ -9,6 +9,7 @@ import java.util.Optional;
 @Repository
 public interface CarRepository extends JpaRepository<Car, Long> {
     List<Car> findCarByBrand(@Param("brand") String brand);
+    List<Car> findCarByBrandIgnoreCase(@Param("brand") String brand);
     boolean existsCarById(@Param("id") Long id);
     boolean existsCarByBrandIgnoreCase(@Param("brand") String brand);
     boolean existsCarByModelIgnoreCase(@Param("model") String model);

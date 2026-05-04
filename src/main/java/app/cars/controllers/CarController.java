@@ -22,8 +22,12 @@ public class CarController {
         this.carQueryService =carQueryService;
     }
     @GetMapping("/all")
-    public ResponseEntity<CarResponseList> getAllCars(){
+    @PreAuthorize("hasAuthority('Car:Read')")
+    public ResponseEntity<CarResponseList> getAllCars(@RequestParam(required = false) String brand){
         log.info("Http  get  /api/v1/cars/all");
+        if (brand != null && !brand.isBlank()) {
+            return ResponseEntity.ok(carQueryService.findByBrand(brand));
+        }
         return ResponseEntity.ok(carQueryService.findAllCars());
     }
     @PostMapping("/add")
