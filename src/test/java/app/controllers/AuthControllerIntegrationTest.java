@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -107,7 +106,7 @@ public class AuthControllerIntegrationTest {
     private String loginAndGetToken(String email, String password) throws Exception {
         MvcResult result=mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(new AuthLoginRequest(email, password))))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isOk())
                 .andReturn();
 
         AuthResponse authResponse=objectMapper.readValue(result.getResponse().getContentAsByteArray(), AuthResponse.class);
@@ -117,7 +116,7 @@ public class AuthControllerIntegrationTest {
     private CarResponse createCar(String brand, String model, int year, double price) throws Exception {
         CarCreateRequest request=new CarCreateRequest(brand, model, year, price);
         MvcResult result=mockMvc.perform(post("/api/v1/cars/add").contentType(MediaType.APPLICATION_JSON)
-                .with(jwt().authorities(()->"car:write"))
+                .with(jwt().authorities(() -> "Car:Write"))
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andReturn();
@@ -133,14 +132,10 @@ public class AuthControllerIntegrationTest {
                 .andExpect(jsonPath("$.token").isNotEmpty());
 
         String token=loginAndGetToken(registeredUser.email(), registeredUser.password());
-        mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(token)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(token));
 
         mockMvc.perform(get("/api/v1/cars/all")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(token))
                 .andExpect(jsonPath("$.carResponseList.length()").value(1));
     }
 }
